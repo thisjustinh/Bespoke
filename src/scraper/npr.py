@@ -28,11 +28,12 @@ def get_npr_article(url: str, user_agent: str = None) -> str:
         
     paragraphs = soup.find_all('p')
     # TODO: This currently returns two sponsor lines in the last part. Either hardcode the last two lines or do not in ['', "Sponsor Message", "Become an NPR sponsor"]
-    return '\n'.join(p.get_text() for p in paragraphs if p != '')  # concatenate paragraphs
+    return ''.join(p.get_text() for p in paragraphs if p != '')  # concatenate paragraphs
     
 
 if __name__ == '__main__':
     example_url = "https://www.npr.org/2023/06/04/1171159008/eric-investigation-voter-data-election-integrity"
     npr_article = get_npr_article(example_url)
+    print(npr_article)
     with open("npr_test.txt", 'w') as f:
         f.write(npr_article)
