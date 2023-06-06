@@ -74,11 +74,16 @@ training_args = TrainingArguments(
     lr_scheduler_type=lr_scheduler_type
 )
 
+
+def prompt_formatting_func(example):
+    return f"Article: {example['article']}\n Summary: {example['highlights']}"
+
+
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset['train'],
+    formatting_func=prompt_formatting_func,
     peft_config=peft_config,
-    dataset_text_field='text',
     max_seq_length=max_sequence_length,
     tokenizer=tokenizer,
     args=training_args
