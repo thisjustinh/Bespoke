@@ -13,8 +13,8 @@ output_dir = './results'
 lora_alpha = 16
 lora_dropout = 0.1
 lora_r = 64
-per_device_train_batch_size = 10
-gradient_accumulation_steps = 10
+per_device_train_batch_size = 100
+gradient_accumulation_steps = 100
 optim = 'paged_adamw_32bit'
 save_steps = 10
 logging_steps = 10
@@ -23,9 +23,9 @@ max_grad_norm = 0.3
 max_steps = 500
 warmup_ratio = 0.03
 lr_scheduler_type = 'constant'
-max_sequence_length = 512
+max_sequence_length = 1024
 
-dataset = load_dataset('cnn_dailymail', '3.0.0')
+dataset = load_dataset('cnn_dailymail', '3.0.0', split='train')
 model_name = 'ybelkada/falcon-7b-sharded-bf16'
 
 bnb_config = BitsAndBytesConfig(
@@ -76,13 +76,19 @@ training_args = TrainingArguments(
 
 
 def prompt_formatting_func(example):
-    return f"Article: {example['article']}\n Summary: {example['highlights']}"
+    example['text'] = f"### Article: {example['article']}\n ### Summary: {example['highlights']}"
+    return example
 
+print("### Starting Prompt Dataset Creation")
+prompt_dataset = dataset.map(prompt_formatting_func)
+print("### Finished Prompt Dataset Creation")
 
 trainer = SFTTrainer(
     model=model,
-    train_dataset=dataset['train'],
-    formatting_func=prompt_formatting_func,
+    train_dataset=prompt_dataset,
+    # train_dataset=dataset.with_format('torch'),
+    dataset_text_field='text',
+    # formatting_func=prompt_formatting_func,
     peft_config=peft_config,
     max_seq_length=max_sequence_length,
     tokenizer=tokenizer,
@@ -92,5 +98,11 @@ trainer = SFTTrainer(
 for name, module in trainer.model.named_modules():
     if 'norm' in name:
         module = module.to(torch.float32)
-        
+
+# Some sanity checks
+# print(prompt_formatting_func(dataset[1000]))
+# print(dataset.with_format('torch')[0])
+print(prompt_dataset[0])
+
 trainer.train()
+trainer.save_model('./results/saved_model.pt')
