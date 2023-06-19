@@ -6,3 +6,4 @@ Based on very legit examination of `robots.txt`, our current supported news site
 
 - [Forbes](https://www.forbes.com/)
 - [NPR](https://www.npr.org/)
+- [CNN](https://www.cnn.com)
