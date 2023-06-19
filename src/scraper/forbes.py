@@ -22,6 +22,6 @@ def get_forbes_article(url: str, user_agent: str = None) -> str:
 if __name__ == '__main__':
     example_url = 'https://www.forbes.com/sites/kenrickcai/2023/06/04/stable-diffusion-emad-mostaque-stability-ai-exaggeration/?sh=5fad3cc175c5'
     forbes_article = get_forbes_article(example_url)
-    print(forbes_article)
+
     with open('forbes_test.txt', 'w') as f:
         f.write(forbes_article)
