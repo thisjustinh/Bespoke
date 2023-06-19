@@ -9,16 +9,16 @@ from trl import SFTTrainer
 # bitsandbytes einops accelerate wandb
 
 # Some hyperparameters:
-output_dir = './results'
+output_dir = 'falcon-7b-cnn-dailymail'
 lora_alpha = 16
 lora_dropout = 0.1
 lora_r = 64
-per_device_train_batch_size = 100
-gradient_accumulation_steps = 100
+per_device_train_batch_size = 5
+gradient_accumulation_steps = 5
 optim = 'paged_adamw_32bit'
-save_steps = 10
+save_steps = 125
 logging_steps = 10
-learning_rate = 2e-4
+learning_rate = 2e-5
 max_grad_norm = 0.3
 max_steps = 500
 warmup_ratio = 0.03
@@ -71,7 +71,8 @@ training_args = TrainingArguments(
     max_steps=max_steps,
     warmup_ratio=warmup_ratio,
     group_by_length=True,
-    lr_scheduler_type=lr_scheduler_type
+    lr_scheduler_type=lr_scheduler_type,
+    push_to_hub=True
 )
 
 
@@ -102,7 +103,10 @@ for name, module in trainer.model.named_modules():
 # Some sanity checks
 # print(prompt_formatting_func(dataset[1000]))
 # print(dataset.with_format('torch')[0])
-print(prompt_dataset[0])
+# print(prompt_dataset[0])
 
 trainer.train()
-trainer.save_model('./results/saved_model.pt')
+trainer.save_pretrained('./saved_model')
+tokenizer.save_pretrained('./saved_tokenizer')
+trainer.push_to_hub()
+tokenizer.push_to_hub('falcon-7b-cnn-dailymail')

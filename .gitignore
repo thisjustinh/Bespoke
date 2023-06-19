@@ -1,6 +1,7 @@
 # Custom from PERF
 results/
 wandb/
+checkpoint-500/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
