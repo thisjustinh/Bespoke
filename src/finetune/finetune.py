@@ -77,12 +77,16 @@ training_args = TrainingArguments(
 
 
 def prompt_formatting_func(example):
-    example['text'] = f"### Article: {example['article']}\n ### Summary: {example['highlights']}"
+    example['text'] = f"### Article: {example['article']}\n ### Summary: {example['highlights']} <|endoftext|>"
     return example
 
 print("### Starting Prompt Dataset Creation")
 prompt_dataset = dataset.map(prompt_formatting_func)
 print("### Finished Prompt Dataset Creation")
+
+# print(prompt_dataset[0])
+# import sys
+# sys.exit(0)
 
 trainer = SFTTrainer(
     model=model,
@@ -106,7 +110,4 @@ for name, module in trainer.model.named_modules():
 # print(prompt_dataset[0])
 
 trainer.train()
-trainer.save_pretrained('./saved_model')
-tokenizer.save_pretrained('./saved_tokenizer')
 trainer.push_to_hub()
-tokenizer.push_to_hub('falcon-7b-cnn-dailymail')

@@ -1,7 +1,7 @@
 # Custom from PERF
 results/
 wandb/
-checkpoint-500/
+falcon-7b-cnn-dailymail/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

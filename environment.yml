@@ -77,4 +77,3 @@ dependencies:
   - yaml=0.2.5=h3422bc3_2
   - yarl=1.9.2=py39h0f82c59_0
   - zipp=3.15.0=pyhd8ed1ab_0
-prefix: /Users/justin/miniforge3/envs/bespoke
