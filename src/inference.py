@@ -1,4 +1,5 @@
 import torch
+import transformers
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, AutoTokenizer
 from peft import LoraConfig, PeftModel
@@ -30,11 +31,11 @@ model = AutoModelForCausalLM.from_pretrained(
 print("Model loaded, converting to PEFT")
 
 model = PeftModel.from_pretrained(model, model_path)
-# model = model.merge_and_unload()
+model = model.merge_and_unload()
 
 
 tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
-tokenizer.pad_token = tokenizer.eos_token
+# tokenizer.pad_token = tokenizer.eos_token
 
 article = get_cnn_article("https://www.cnn.com/2023/06/20/europe/andrew-tate-charges-trial-intl-gbr/index.html")
 # with open('./scraper/forbes_test.txt', 'r') as f:
@@ -55,10 +56,11 @@ inputs = tokenizer(prompt, return_tensors='pt').to(device)
 # print(tokenizer("<|endoftext|>"))
 outputs = model.generate(input_ids=inputs['input_ids'], 
                          attention_mask=inputs['attention_mask'],
-                         eos_token_id=11,
-                         pad_token_id=11,
-                         bos_token_id=1,
-                         max_new_tokens=80)
+                         eos_token_id=tokenizer.eos_token_id,
+                         max_new_tokens=100,
+                         do_sample=True,
+                         top_k=10,
+                         num_return_sequences=1)
 # outputs = model.generate(**inputs)
 
 summary = tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens=False)
@@ -66,7 +68,7 @@ summary = tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_to
 print("Inference done!")
 print(f"Model load took {infer_start - load_start} seconds. Inference took {time.time() - infer_start} seconds")
 
-# print(summary)
+print(summary)
 with open('cnn_inference.txt', 'w') as f:
     f.write(summary[0])
 
